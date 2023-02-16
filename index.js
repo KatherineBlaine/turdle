@@ -18,6 +18,7 @@ var letterKey = document.querySelector('#key-section');
 var rules = document.querySelector('#rules-section');
 var stats = document.querySelector('#stats-section');
 var gameOverBox = document.querySelector('#game-over-section');
+var gameLostBox = document.getElementById('game-lost-section');
 var gameOverGuessCount = document.querySelector('#game-over-guesses-count');
 var gameOverGuessGrammar = document.querySelector('#game-over-guesses-plural');
 let words;
@@ -69,14 +70,18 @@ function updateInputPermissions() {
       inputs[i].disabled = false;
     }
   }
-  inputs[0].focus();
+
+  if(currentRow < 6) {
+    console.log(currentRow)
+    inputs[0].focus();
+  }
 }
 
 function moveToNextInput(e) {
   var key = e.keyCode || e.charCode;
   if( key !== 8 && key !== 46 ) {
     var indexOfNext = parseInt(e.target.id.split('-')[2]) + 1;
-    inputs[indexOfNext].focus();
+    inputs[indexOfNext].focus()
   }
 }
 
@@ -101,6 +106,8 @@ function submitGuess() {
     compareGuess();
     if (checkForWin()) {
       setTimeout(declareWinner, 1000);
+    } else if (!checkForWin() && currentRow === 6) {
+      declareLoss();
     } else {
       changeRow();
     }
@@ -176,12 +183,22 @@ function changeRow() {
 function declareWinner() {
   recordGameStats();
   changeGameOverText();
-  viewGameOverMessage();
+  viewGameOverMessage(gameOverBox);
+  setTimeout(startNewGame, 4000);
+}
+
+function declareLoss() {
+  recordGameStats();
+  viewGameOverMessage(gameLostBox);
   setTimeout(startNewGame, 4000);
 }
 
 function recordGameStats() {
-  gamesPlayed.push({ solved: true, guesses: currentRow });
+  if (checkForWin()) {
+    gamesPlayed.push({ solved: true, guesses: currentRow });
+  } else if (!checkForWin()) {
+    gamesPlayed.push({ solved: false, guesses: currentRow });
+  }
 }
 
 function changeGameOverText() {
@@ -232,6 +249,7 @@ function viewGame() {
   rules.classList.add('collapsed');
   stats.classList.add('collapsed');
   gameOverBox.classList.add('collapsed')
+  gameLostBox.classList.add('collapsed')
   viewGameButton.classList.add('active');
   viewRulesButton.classList.remove('active');
   viewStatsButton.classList.remove('active');
@@ -247,8 +265,9 @@ function viewStats() {
   viewStatsButton.classList.add('active');
 }
 
-function viewGameOverMessage() {
-  gameOverBox.classList.remove('collapsed')
+function viewGameOverMessage(outcome) {
+  outcome.classList.remove('collapsed')
   letterKey.classList.add('hidden');
   gameBoard.classList.add('collapsed');
 }
+
