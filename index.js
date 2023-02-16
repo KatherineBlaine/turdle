@@ -1,3 +1,4 @@
+
 // Global Variables
 var winningWord = '';
 var currentRow = 1;
@@ -19,9 +20,16 @@ var stats = document.querySelector('#stats-section');
 var gameOverBox = document.querySelector('#game-over-section');
 var gameOverGuessCount = document.querySelector('#game-over-guesses-count');
 var gameOverGuessGrammar = document.querySelector('#game-over-guesses-plural');
+let words;
+
+const fetchApi = () => fetch('http://localhost:3001/api/v1/words')
+  .then(response => response.json())
+  .then(data => setGame(data))
+  .catch(err => console.log(err))
 
 // Event Listeners
-window.addEventListener('load', setGame);
+
+window.addEventListener('load', fetchApi);
 
 for (var i = 0; i < inputs.length; i++) {
   inputs[i].addEventListener('keyup', function() { moveToNextInput(event) });
@@ -40,15 +48,17 @@ viewGameButton.addEventListener('click', viewGame);
 viewStatsButton.addEventListener('click', viewStats);
 
 // Functions
-function setGame() {
+function setGame(gameData) {
   currentRow = 1;
-  winningWord = getRandomWord();
+  words = gameData;
+  winningWord = getRandomWord(words);
+  console.log(winningWord)
   updateInputPermissions();
 }
 
-function getRandomWord() {
+function getRandomWord(data) {
   var randomIndex = Math.floor(Math.random() * 2500);
-  return words[randomIndex];
+  return data[randomIndex];
 }
 
 function updateInputPermissions() {
@@ -59,13 +69,11 @@ function updateInputPermissions() {
       inputs[i].disabled = false;
     }
   }
-
   inputs[0].focus();
 }
 
 function moveToNextInput(e) {
   var key = e.keyCode || e.charCode;
-
   if( key !== 8 && key !== 46 ) {
     var indexOfNext = parseInt(e.target.id.split('-')[2]) + 1;
     inputs[indexOfNext].focus();
@@ -188,7 +196,7 @@ function changeGameOverText() {
 function startNewGame() {
   clearGameBoard();
   clearKey();
-  setGame();
+  setGame(words);
   viewGame();
   inputs[0].focus();
 }
