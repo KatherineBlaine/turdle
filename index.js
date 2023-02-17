@@ -37,13 +37,13 @@ const fetchApi = () => fetch('http://localhost:3001/api/v1/words')
 
 window.addEventListener('load', fetchApi);
 
-for (var i = 0; i < inputs.length; i++) {
-  inputs[i].addEventListener('keyup', function() { moveToNextInput(event) });
-}
+inputs.forEach(input => {
+  input.addEventListener('keyup', function() { moveToNextInput(event) });
+})
 
-for (var i = 0; i < keyLetters.length; i++) {
-  keyLetters[i].addEventListener('click', function() { clickLetter(event) });
-}
+keyLetters.forEach(keyLetter => {
+  keyLetter.addEventListener('click', function() { clickLetter(event) });
+})
 
 guessButton.addEventListener('click', submitGuess);
 
@@ -72,18 +72,14 @@ function getRandomWord(data) {
 }
 
 function updateInputPermissions() {
-  for(var i = 0; i < inputs.length; i++) {
-    if(!inputs[i].id.includes(`-${currentRow}-`)) {
-      inputs[i].disabled = true;
+  inputs.forEach(input => {
+    if(!input.id.includes(`-${currentRow}-`)) {
+      input.disabled = true;
     } else {
-      inputs[i].disabled = false;
+      input.disabled = false;
     }
-  }
-
-  if(currentRow < 6) {
-    console.log(currentRow)
+  })
     inputs[0].focus();
-  }
 }
 
 function moveToNextInput(e) {
@@ -98,12 +94,12 @@ function clickLetter(e) {
   var activeInput = null;
   var activeIndex = null;
 
-  for (var i = 0; i < inputs.length; i++) {
-    if(inputs[i].id.includes(`-${currentRow}-`) && !inputs[i].value && !activeInput) {
-      activeInput = inputs[i];
-      activeIndex = i;
+  inputs.forEach(input => {
+    if(input.id.includes(`-${currentRow}-`) && !inputs[i].value && !activeInput) {
+      activeInput = input;
+      activeIndex = index;
     }
-  }
+  })
 
   activeInput.value = e.target.innerText;
   inputs[activeIndex + 1].focus();
@@ -128,11 +124,11 @@ function submitGuess() {
 function checkIsWord() {
   guess = '';
 
-  for(var i = 0; i < inputs.length; i++) {
-    if(inputs[i].id.includes(`-${currentRow}-`)) {
-      guess += inputs[i].value;
+  inputs.forEach(input => {
+    if(input.id.includes(`-${currentRow}-`)) {
+      guess += input.value;
     }
-  }
+  })
 
   return words.includes(guess);
 }
@@ -140,42 +136,41 @@ function checkIsWord() {
 function compareGuess() {
   var guessLetters = guess.split('');
 
-  for (var i = 0; i < guessLetters.length; i++) {
-
-    if (winningWord.includes(guessLetters[i]) && winningWord.split('')[i] !== guessLetters[i]) {
-      updateBoxColor(i, 'wrong-location');
-      updateKeyColor(guessLetters[i], 'wrong-location-key');
-    } else if (winningWord.split('')[i] === guessLetters[i]) {
-      updateBoxColor(i, 'correct-location');
-      updateKeyColor(guessLetters[i], 'correct-location-key');
+  guessLetters.forEach(letter => {
+    if (winningWord.includes(letter) && winningWord.split('')[guessLetters.indexOf(letter)] !== letter) {
+      updateBoxColor(guessLetters.indexOf(letter), 'wrong-location');
+      updateKeyColor(letter, 'wrong-location-key');
+    } else if (winningWord.split('')[guessLetters.indexOf(letter)] === letter) {
+      updateBoxColor(guessLetters.indexOf(letter), 'correct-location');
+      updateKeyColor(letter, 'correct-location-key');
     } else {
-      updateBoxColor(i, 'wrong');
-      updateKeyColor(guessLetters[i], 'wrong-key');
+      updateBoxColor(guessLetters.indexOf(letter), 'wrong');
+      updateKeyColor(letter, 'wrong-key');
     }
-  }
-
+  })
 }
 
 function updateBoxColor(letterLocation, className) {
   var row = [];
 
-  for (var i = 0; i < inputs.length; i++) {
-    if(inputs[i].id.includes(`-${currentRow}-`)) {
-      row.push(inputs[i]);
+  inputs.forEach(input => {
+    if(input.id.includes(`-${currentRow}-`)) {
+      row.push(input)
     }
-  }
+  })
 
   row[letterLocation].classList.add(className);
+  return 'hello'
 }
 
 function updateKeyColor(letter, className) {
   var keyLetter = null;
-
-  for (var i = 0; i < keyLetters.length; i++) {
-    if (keyLetters[i].innerText === letter) {
-      keyLetter = keyLetters[i];
+  
+  keyLetters.forEach(key => {
+    if (key.innerText === letter) {
+      keyLetter = key;
     }
-  }
+  })
 
   keyLetter.classList.add(className);
 }
@@ -256,16 +251,16 @@ function startNewGame() {
 }
 
 function clearGameBoard() {
-  for (var i = 0; i < inputs.length; i++) {
-    inputs[i].value = '';
-    inputs[i].classList.remove('correct-location', 'wrong-location', 'wrong');
-  }
+  inputs.forEach(input => {
+    input.value = '';
+    input.classList.remove('correct-location', 'wrong-location', 'wrong');
+  })
 }
 
 function clearKey() {
-  for (var i = 0; i < keyLetters.length; i++) {
-    keyLetters[i].classList.remove('correct-location-key', 'wrong-location-key', 'wrong-key');
-  }
+  keyLetters.forEach(key => {
+    key.classList.remove('correct-location-key', 'wrong-location-key', 'wrong-key');
+  })
 }
 
 // Change Page View Functions
