@@ -4,6 +4,7 @@ var winningWord = '';
 var currentRow = 1;
 var guess = '';
 var gamesPlayed = [];
+let words, totalGames, gamesWon, attempts;
 
 // Query Selectors
 var inputs = document.querySelectorAll('input');
@@ -17,11 +18,15 @@ var gameBoard = document.querySelector('#game-section');
 var letterKey = document.querySelector('#key-section');
 var rules = document.querySelector('#rules-section');
 var stats = document.querySelector('#stats-section');
+var totalGamesStat = document.getElementById('stats-total-games');
+var percentCorrectStat = document.getElementById('stats-percent-correct');
+var averageGuessesStat = document.getElementById('stats-average-guesses');
+var totalGamesGrammar = document.getElementById('stats-total-games-plural');
+var averageGuessesGrammar = document.getElementById('stats-average-gesses-plural');
 var gameOverBox = document.querySelector('#game-over-section');
 var gameLostBox = document.getElementById('game-lost-section');
 var gameOverGuessCount = document.querySelector('#game-over-guesses-count');
 var gameOverGuessGrammar = document.querySelector('#game-over-guesses-plural');
-let words;
 
 const fetchApi = () => fetch('http://localhost:3001/api/v1/words')
   .then(response => response.json())
@@ -46,7 +51,11 @@ viewRulesButton.addEventListener('click', viewRules);
 
 viewGameButton.addEventListener('click', viewGame);
 
-viewStatsButton.addEventListener('click', viewStats);
+viewStatsButton.addEventListener('click', () => {
+  displayGameStats();
+  changeStatsText();
+  viewStats();
+});
 
 // Functions
 function setGame(gameData) {
@@ -198,6 +207,34 @@ function recordGameStats() {
     gamesPlayed.push({ solved: true, guesses: currentRow });
   } else if (!checkForWin()) {
     gamesPlayed.push({ solved: false, guesses: currentRow });
+  }
+}
+
+
+function displayGameStats() {
+  totalGames = gamesPlayed.length;
+  gamesWon = gamesPlayed.filter(game => game.solved === true).length;
+  attempts = gamesPlayed.reduce((accumulator, currentGame) => {
+    accumulator += currentGame.guesses
+    return accumulator;
+  }, 0)
+
+  totalGamesStat.innerText = totalGames;
+  percentCorrectStat.innerText = (gamesWon / totalGames) * 100;
+  averageGuessesStat.innerText = attempts / totalGames;
+}
+
+function changeStatsText() {
+  if (totalGames === 1) {
+    totalGamesGrammar.classList.add('collapsed');
+  } else {
+    totalGamesGrammar.classList.remove('collapsed');
+  }
+
+  if(attempts / totalGames === 1) {
+    averageGuessesGrammar.classList.add('collapsed');
+  } else {
+    averageGuessesGrammar.classList.remove('collapsed');
   }
 }
 
